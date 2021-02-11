@@ -53,6 +53,7 @@ struct  ContentView: View {
             ColorSlider(value: $gGuess, textColor: .green)
             ColorSlider(value: $bGuess, textColor: .blue)
         }
+        .background(Color(.systemBackground))
     }
 }
 
@@ -60,6 +61,7 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(rGuess: 0.2, gGuess: 0.8, bGuess: 0.3)
             .previewLayout(.fixed(width: 568, height: 320))
+            .environment(\.colorScheme, .dark)
     }
 }
 
