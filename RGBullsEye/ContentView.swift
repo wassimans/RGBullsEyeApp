@@ -11,10 +11,11 @@ struct  ContentView: View {
     let rTarget = Double.random(in: 0..<1)
     let gTarget = Double.random(in: 0..<1)
     let bTarget = Double.random(in: 0..<1)
-    @State var rGuess: Double
-    @State var gGuess: Double
-    @State var bGuess: Double
-    @State var showAlert = false
+    @State private var rGuess = 0.5
+    @State private var gGuess = 0.5
+    @State private var bGuess = 0.5
+    @State private var showAlert = false
+    @ObservedObject var timer = TimeCounter()
     
     func computeScore() -> Int {
       let rDiff = rGuess - rTarget
@@ -31,16 +32,23 @@ struct  ContentView: View {
             HStack {
                 VStack {
                     Color(red: rTarget, green: gTarget, blue: bTarget)
-                    Text("Match this color")
-                        .padding()
+                    (self.showAlert ? Text("R: \(Int(rTarget * 255.0))" + " G: \(Int(gTarget * 255.0))" + " B: \(Int(bTarget * 255.0))") : Text("Match this color")).padding()
+                    
                 }
                 VStack {
-                    Color(red: rGuess, green: gGuess, blue: bGuess)
+                    ZStack(alignment: .center) {
+                        Color(red: rGuess, green: gGuess, blue: bGuess)
+                        Text(String(timer.counter))
+                            .foregroundColor(.black)
+                            .padding(.all, 5)
+                            .background(Color.white)
+                            .mask(Circle())
+                    }
                     Text("R: \(Int(rGuess * 255.0))" + " G: \(Int(gGuess * 255.0))" + " B: \(Int(bGuess * 255.0))")
                         .padding()
                 }
             }
-            Button(action: { self.showAlert = true }) {
+            Button(action: { self.showAlert = true; self.timer.killTimer() }) {
               Text("Hit Me!")
             }
             .alert(isPresented: $showAlert) {
@@ -49,9 +57,12 @@ struct  ContentView: View {
             }
             .padding()
 
-            ColorSlider(value: $rGuess, textColor: .red)
-            ColorSlider(value: $gGuess, textColor: .green)
-            ColorSlider(value: $bGuess, textColor: .blue)
+            VStack {
+                ColorSlider(value: $rGuess, textColor: .red)
+                ColorSlider(value: $gGuess, textColor: .green)
+                ColorSlider(value: $bGuess, textColor: .blue)
+            }
+            .padding(.horizontal)
         }
         .background(Color(.systemBackground))
     }
@@ -59,9 +70,9 @@ struct  ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(rGuess: 0.2, gGuess: 0.8, bGuess: 0.3)
+        ContentView()
             .previewLayout(.fixed(width: 568, height: 320))
-            .environment(\.colorScheme, .dark)
+//            .environment(\.colorScheme, .dark)
     }
 }
 
@@ -74,9 +85,10 @@ struct ColorSlider: View {
             Text("0")
                 .foregroundColor(textColor)
             Slider(value: $value)
+                .background(textColor)
+                .cornerRadius(10)
             Text("255")
                 .foregroundColor(textColor)
         }
-        .padding(.horizontal)
     }
 }
